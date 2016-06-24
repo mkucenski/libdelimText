@@ -16,7 +16,7 @@
 
 #include "misc/debugMsgs.h"
 
-string findSubString(const string& str, u_int32_t uiStartPos, const string& strStartsWith, const string& strEndsWith, bool bInclusive) {
+string findSubString(const string& str, uint32_t uiStartPos, const string& strStartsWith, const string& strEndsWith, bool bInclusive) {
 	string rv;
 	
 	if (str.length() > 0) {
@@ -54,7 +54,7 @@ string findSubString(const string& str, u_int32_t uiStartPos, const string& strS
 	return rv;
 }
 
-string findSubString(const string& str, u_int32_t uiStartPos, const string& strStartsWith, u_int32_t uiLength, bool bInclusive) {
+string findSubString(const string& str, uint32_t uiStartPos, const string& strStartsWith, uint32_t uiLength, bool bInclusive) {
 	string rv;
 	
 	if (str.length() > 0 && uiLength > 0) {

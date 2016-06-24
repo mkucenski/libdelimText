@@ -12,6 +12,7 @@ AC_PROG_CXX
 AC_PROG_CC
 
 # Checks for libraries.
+AX_BOOST_BASE([1.48],, [AC_MSG_ERROR([This program needs Boost, but it was not found in your system])])
 
 # Checks for header files.
 
