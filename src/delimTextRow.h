@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//#define _DEBUG_
+
 #ifndef _DELIMTEXTROW_HPP_
 #define _DELIMTEXTROW_HPP_
 
