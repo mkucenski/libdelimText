@@ -52,9 +52,9 @@ bool delimTextRow::getField(unsigned int field, string* pstrValue) {
 		//TODO	Also, this code should not include the qualifiers in the output.  The qualifiers should be considered formatting characters that define the fields, not
 		//			part of the field data.  They should be filtered out... Maybe...
 		
-		DEBUG_INFO("delimTextRow::getField() Searching for field " + boost::lexical_cast<string>(field) + " within <" + m_strData + ">.");
+		DEBUG_INFO("delimTextRow::getField() Searching for field " + boost::lexical_cast<string>(field) + " within <" + m_strData + ">; length = " << m_strData.length() << ".");
 		
-		unsigned int beginPos = 0;
+		size_t beginPos = 0;
 		for (unsigned int i=0; i<field; i++) {										//Loop past all of the previous fields to the one requested
 			beginPos = m_strData.find_first_of(searchFor, beginPos);
 			if (beginPos != string::npos) {
@@ -78,8 +78,11 @@ bool delimTextRow::getField(unsigned int field, string* pstrValue) {
 			}
 		}
 		
+		DEBUG_INFO("delimTextRow::getField() Found field " + boost::lexical_cast<string>(field) + "; searching for end of field...");
+
 		if (beginPos != string::npos) {
-			unsigned int endPos = m_strData.find_first_of(searchFor, beginPos);
+			size_t endPos = m_strData.find_first_of(searchFor, beginPos);
+			DEBUG_INFO("delimTextRow::getField() Starting @ " << beginPos << " found first indicator @ " << endPos); 
 			if (endPos != string::npos) {
 				if (m_strData[endPos] == m_chQualifier) {							//If I find a qualifier
 					endPos = m_strData.find(m_chQualifier, endPos+1);			//Then nothing else counts until I find the closing qualifier
@@ -112,6 +115,7 @@ bool delimTextRow::getField(unsigned int field, string* pstrValue) {
 }
 
 bool delimTextRow::getFieldAsLong(unsigned int field, long* plValue) {
+	DEBUG_INFO("delimTextRow::getFieldAsLong(" << field << ")");
 	bool rv = false;
 	
 	if (plValue) {
