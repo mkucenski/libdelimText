@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//#define _DEBUG_
+
 #include "delimTextRow.h"
-
 #include "boost/lexical_cast.hpp"
-
 #include "misc/debugMsgs.h"
 
 delimTextRow::delimTextRow() {
