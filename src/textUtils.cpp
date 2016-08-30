@@ -60,7 +60,7 @@ string findSubString(const string& str, uint32_t uiStartPos, const string& strSt
 	if (str.length() > 0 && uiLength > 0) {
 		int startPos = 0;
 		if (strStartsWith.length() > 0) {
-			str.find(strStartsWith, uiStartPos);
+			startPos = str.find(strStartsWith, uiStartPos);
 		}
 		if (startPos >= 0) {
 			if (!bInclusive) {
@@ -77,3 +77,36 @@ string findSubString(const string& str, uint32_t uiStartPos, const string& strSt
 	
 	return rv;
 }
+
+string stripQualifiers(const string& str, char chQualifier) {
+	string rv;
+	
+	if (str.length() > 0 && chQualifier != '\0') {
+		int startPos = 0;
+		int endPos = str.length()-1;
+
+		if (str.find(chQualifier, 0) == 0) {					//str starts with a qualifier
+			startPos++;
+		}
+
+		if (str.find(chQualifier, endPos) == endPos) {		//str ends with a qualifier
+			endPos--;
+		}
+
+		rv = string(str, startPos, endPos-startPos+1);
+
+		if (startPos != 0 || endPos !=str.length()) {		//Changes were made, debug output
+			DEBUG_INFO("Qualifiers Removed: Changing <" << str << "> to <" << rv << ">.");
+		}
+
+	} else {
+		DEBUG_ERROR("textUtils::stripQualifiers() Search string has zero length or requested qualifier is NULL.");
+	}
+	
+	return rv;
+}
+
+string addQualifiers(const string& str, char chQualifier) {
+	return string(chQualifier + str + chQualifier);
+}
+

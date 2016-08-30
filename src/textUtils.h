@@ -21,4 +21,7 @@ using namespace std;
 string findSubString(const string& str, uint32_t uiStartPos, const string& strStartsWith, const string& strEndsWith, bool bInclusive = false);
 string findSubString(const string& str, uint32_t uiStartPos, const string& strStartsWith, uint32_t uiLength, bool bInclusive = false);
 
+string stripQualifiers(const string& str, char chQualifier);
+string addQualifiers(const string& str, char chQualifier);
+
 #endif /*TEXTUTILS_H_*/
