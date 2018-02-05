@@ -67,16 +67,3 @@ bool delimTextFile::getNextRow(delimTextRow* pRow) {
 	return rv;
 }
 
-bool delimTextFile::getColumnByName(string strName, unsigned int* p_iColumn) {
-	bool rv = false;
-
-	for (unsigned int i=0; i<m_clsHeader.getFieldCount(); i++) {
-		if (strName == m_clsHeader.getField(i)) {
-			*p_iColumn = i;
-			rv = true;
-			break;
-		}
-	}
-
-	return rv;
-}
