@@ -29,6 +29,10 @@ class textFile {
 		bool close();
 		
 		bool getNextRow(string* pStr);
+		string getNextRow() { string rv; getNextRow(&rv); return rv; };
+
+		bool getFirstRow(string* pStr);
+		string getFirstRow() { string rv; getFirstRow(&rv); return rv; };
 	
 	private:
 		ifstream* m_pFilestream;

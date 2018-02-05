@@ -22,7 +22,7 @@ textFile::textFile()	:	m_pFilestream(NULL),
 }
 
 textFile::textFile(string strFilename)	:	m_pFilestream(NULL),
-													m_pInputstream(NULL) {
+														m_pInputstream(NULL) {
 	open(strFilename);
 }
 
@@ -64,6 +64,7 @@ bool textFile::close() {
 		delete m_pFilestream;
 		m_pFilestream = NULL;
 	}
+	m_pInputstream = NULL;
 	
 	return rv;
 }
@@ -110,3 +111,35 @@ bool textFile::getNextRow(string* pStr) {
 
 	return rv;
 }
+
+bool textFile::getFirstRow(string* pStr) {
+	bool rv = false;
+
+	if (m_pInputstream) {
+		// Save the current file position
+		u_int64_t rpos = m_pInputstream->tellg();
+		if (rpos != -1) {
+			// Move to the beginning of the file
+			m_pInputstream->seekg(0, m_pInputstream->beg);
+			if (!m_pInputstream->eof() && !m_pInputstream->fail()) {
+				// Get the first row
+				rv = getNextRow(pStr);
+
+				// Move back to the original file position
+				m_pInputstream->seekg(rpos, m_pInputstream->beg);
+				if (m_pInputstream->eof() || m_pInputstream->fail()) {
+					DEBUG_ERROR("textFile::getFirstRow() Unable to return to previous position of file.");
+				}
+			} else {
+				DEBUG_ERROR("textFile::getFirstRow() Unable to move to beginning of file.");
+			}
+		} else {
+			DEBUG_ERROR("textFile::getFirstRow() Unable to store current file position.");
+		}
+	} else {
+		DEBUG_ERROR("textFile::getFirstRow() Invalid file pointer.");
+	}
+
+	return rv;
+}
+
