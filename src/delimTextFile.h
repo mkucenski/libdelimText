@@ -25,15 +25,22 @@ using namespace std;
 class delimTextFile : public textFile {
 	public:
 		delimTextFile();
-		delimTextFile(string strFilename, char delim, char qualifier = NULL);
+		delimTextFile(string strFilename, char delim, char qualifier = '\0');
 		
-		bool open(string strFilename, char delim, char qualifier = NULL);
+		bool open(string strFilename, char delim, char qualifier = '\0');
 				
+		delimTextRow getHeader() { return m_clsHeader; };
+		bool setHeader(string strHeader);
+
+		bool getColumnByName(string strName, unsigned int* p_iColumn);
+		unsigned int getColumnByName(string strName) { unsigned int rv = 0; getColumnByName(strName, &rv); return rv; };
+
 		bool getNextRow(delimTextRow* pRow);
 	
 	private:
 		char m_chDelim;
 		char m_chQualifier;
+		delimTextRow m_clsHeader;
 };
 
 #endif //_DELIMTEXTFILE_H_

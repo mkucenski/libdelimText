@@ -21,14 +21,33 @@ delimTextFile::delimTextFile() {
 }
 
 delimTextFile::delimTextFile(string strFilename, char delim, char qualifier) :	textFile(strFilename),
-																									m_chDelim(delim),
-																									m_chQualifier(qualifier) {
+																											m_chDelim(delim),
+																											m_chQualifier(qualifier) {
 }
 
 bool delimTextFile::open(string strFilename, char delim, char qualifier) {
+	bool rv = false;
 	m_chDelim = delim;
 	m_chQualifier = qualifier;
-	return textFile::open(strFilename);
+	if (textFile::open(strFilename)) {
+		rv = true;
+	} else {
+		DEBUG_ERROR("delimTextFile::open() Failure opening file.");
+	}
+
+	return rv;
+}
+
+bool delimTextFile::setHeader(string strHeader) {
+	bool rv = false;
+
+	if (strHeader.length() > 0) {
+		rv = m_clsHeader.loadRow(strHeader, m_chDelim, m_chQualifier);
+	} else {
+		DEBUG_ERROR("delimTextFile::loadFirstRow() Zero-length header row.");
+	}
+
+	return rv;
 }
 
 bool delimTextFile::getNextRow(delimTextRow* pRow) {
@@ -37,15 +56,26 @@ bool delimTextFile::getNextRow(delimTextRow* pRow) {
 	if (pRow) {	
 		string strData;
 		if (textFile::getNextRow(&strData)) {
-			pRow->setData(strData);
-			pRow->setDelim(m_chDelim);
-			pRow->setQualifier(m_chQualifier);
-			rv = true;
+			rv = pRow->loadRow(strData, m_chDelim, m_chQualifier);
 		} else {
 			DEBUG_ERROR("delimTextFile::getNextRow() Failure getting line of data.");
 		}
 	} else {
 		DEBUG_ERROR("delimTextFile::getNextRow() Invalid destination row pointer.");
+	}
+
+	return rv;
+}
+
+bool delimTextFile::getColumnByName(string strName, unsigned int* p_iColumn) {
+	bool rv = false;
+
+	for (unsigned int i=0; i<m_clsHeader.getFieldCount(); i++) {
+		if (strName == m_clsHeader.getField(i)) {
+			*p_iColumn = i;
+			rv = true;
+			break;
+		}
 	}
 
 	return rv;
