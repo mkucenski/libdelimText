@@ -42,20 +42,20 @@ class delimTextRow {
 		unsigned int getColumnCount() { unsigned int rv = 0; getColumnCount(&rv); return rv; };
 		bool getColumnCount(unsigned int* p_iCount);
 
-		string getValue(unsigned int iColumn) { string rv; getValue(iColumn, &rv); return rv; };
-		bool getValue(unsigned int iColumn, string* p_strValue);
+		string getValue(int iColumn) { string rv; getValue(iColumn, &rv); return rv; };
+		bool getValue(int iColumn, string* p_strValue);
 		
-		long getValueAsLong(unsigned int iColumn) { long rv = 0; getValueAsLong(iColumn, &rv); return rv; };
-		bool getValueAsLong(unsigned int iColumn, long* p_lValue);
+		long getValueAsLong(int iColumn) { long rv = 0; getValueAsLong(iColumn, &rv); return rv; };
+		bool getValueAsLong(int iColumn, long* p_lValue);
 
-		unsigned int getColumnByValue(string strValue) { unsigned int rv = 0; getColumnByValue(strValue, &rv); return rv; };
-		bool getColumnByValue(string strValue, unsigned int* p_iColumn);
+		int getColumnByValue(string strValue) { int rv = -1; getColumnByValue(strValue, &rv); return rv; };
+		bool getColumnByValue(string strValue, int* p_iColumn);
 
 		//DEPRECATED; keep for backward compatibility. Nomenclature of column/value is more descriptive and clear.
-		string getField(unsigned int field) { return getValue(field); };
-		bool getField(unsigned int field, string* pstrValue) { return getValue(field, pstrValue); };
-		long getFieldAsLong(unsigned int field) { return getValueAsLong(field); };
-		bool getFieldAsLong(unsigned int field, long* plValue) { return getValueAsLong(field, plValue); };
+		string getField(int field) { return getValue(field); };
+		bool getField(int field, string* pstrValue) { return getValue(field, pstrValue); };
+		long getFieldAsLong(int field) { return getValueAsLong(field); };
+		bool getFieldAsLong(int field, long* plValue) { return getValueAsLong(field, plValue); };
 		unsigned int getFieldCount() { return getColumnCount(); };
 		bool getFieldCount(unsigned int* pCount) { return getColumnCount(pCount); };
 

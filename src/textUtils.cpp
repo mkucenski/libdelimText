@@ -12,17 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "textUtils.h"
+// #define _DEBUG_
 
+#include <algorithm>
+#include "textUtils.h"
 #include "misc/debugMsgs.h"
 
-string findSubString(const string& str, uint32_t uiStartPos, const string& strStartsWith, const string& strEndsWith, bool bInclusive) {
+string findSubString(const string& str, size_t posStart, const string& strStartsWith, const string& strEndsWith, bool bInclusive) {
 	string rv;
 	
 	if (str.length() > 0) {
-		int startPos = uiStartPos;
+		int startPos = posStart;
 		if (strStartsWith.length() > 0) {
-			startPos = str.find(strStartsWith, uiStartPos);
+			startPos = str.find(strStartsWith, posStart);
 		}
 		if (startPos >= 0) {
 			if (!bInclusive) {
@@ -54,20 +56,20 @@ string findSubString(const string& str, uint32_t uiStartPos, const string& strSt
 	return rv;
 }
 
-string findSubString(const string& str, uint32_t uiStartPos, const string& strStartsWith, uint32_t uiLength, bool bInclusive) {
+string findSubString(const string& str, size_t posStart, const string& strStartsWith, size_t cLength, bool bInclusive) {
 	string rv;
 	
-	if (str.length() > 0 && uiLength > 0) {
+	if (str.length() > 0 && cLength > 0) {
 		int startPos = 0;
 		if (strStartsWith.length() > 0) {
-			startPos = str.find(strStartsWith, uiStartPos);
+			startPos = str.find(strStartsWith, posStart);
 		}
 		if (startPos >= 0) {
 			if (!bInclusive) {
 				startPos += strStartsWith.length();
 			}
 			
-			rv = string(str, startPos, uiLength);
+			rv = string(str, startPos, cLength);
 		} else {
 			DEBUG_WARNING("textUtils::findSubString() Starting string (" << strStartsWith << ") not found.");
 		} 
@@ -75,6 +77,42 @@ string findSubString(const string& str, uint32_t uiStartPos, const string& strSt
 		DEBUG_ERROR("textUtils::findSubString() Search string has zero length or requested length equals 0.");
 	}
 	
+	return rv;
+}
+
+size_t findSubString(const string& str, size_t posStart, const string& strSub) {
+	return str.find(strSub, posStart);
+}
+
+size_t ifindSubString(const string& str, size_t posStart, const string& strSub) {
+	string strUpper = str;
+	string strSubUpper = strSub;
+	transform(strUpper.begin(), strUpper.end(), strUpper.begin(), ::toupper);
+	transform(strSubUpper.begin(), strSubUpper.end(), strSubUpper.begin(), ::toupper);
+	DEBUG_INFO("textUtils::ifindSubString(" << str << ", " << strSub << ") - " << strUpper << " " << strSubUpper);
+	return findSubString(strUpper, posStart, strSubUpper);
+}
+
+string eraseSubString(const string& str, const string& strSub) {
+	string rv = str;
+
+	size_t posSub = findSubString(str, 0, strSub);
+	if (posSub != string::npos) {
+		rv.erase(posSub, strSub.length());
+	}
+
+	return rv;
+}
+
+string ieraseSubString(const string& str, const string& strSub) {
+	string rv = str;
+
+	size_t posSub = ifindSubString(str, 0, strSub);
+	DEBUG_INFO("pos" << posSub);
+	if (posSub != string::npos) {
+		rv.erase(posSub, strSub.length());
+	}
+
 	return rv;
 }
 

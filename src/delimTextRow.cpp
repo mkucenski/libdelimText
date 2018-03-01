@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//#define _DEBUG_
+// #define _DEBUG_
 
 #include "delimTextRow.h"
 
@@ -36,88 +36,96 @@ delimTextRow::delimTextRow(delimTextRow* pDelimTextRowObj)	:	m_chDelim(pDelimTex
 delimTextRow::~delimTextRow() {
 }
 		
-bool delimTextRow::getValue(unsigned int iColumn, string* p_strValue) {
+bool delimTextRow::getValue(int iColumn, string* p_strValue) {
+	DEBUG_INFO("delimTextRow::getValue(int iColumn = " << iColumn << ", string* p_strValue" << *p_strValue << ")"); 
+
 	bool rv = false;
 	
-	DEBUG_INFO("delimTextRow::getValue() m_chDelim: '" << m_chDelim << "'");
-	DEBUG_INFO("delimTextRow::getValue() m_chQualifier: '" << m_chQualifier << "'");
+	if (iColumn >= 0) {
+		DEBUG_INFO("delimTextRow::getValue() m_chDelim: '" << m_chDelim << "'");
+		DEBUG_INFO("delimTextRow::getValue() m_chQualifier: '" << m_chQualifier << "'");
 	
-	if (p_strValue) {
-		char searchFor[3];
-		searchFor[0] = m_chDelim;
-		searchFor[1] = m_chQualifier;
-		searchFor[2] = '\0';
-		
-		//TODO	This code should be smarter with qualifiers.  For example 'test|"testing"tes|ting"|test' will fail because there is a lone '"' in the middle of a field.
-		//			I think that the qualifier search should be looking for delimiter/qualifier pairs.  For example '|"' and '"|'.  Lone qualifiers should not count... Maybe...
-		
-		//TODO	Also, this code should not include the qualifiers in the output.  The qualifiers should be considered formatting characters that define the fields, not
-		//			part of the field data.  They should be filtered out... Maybe...
-		
-		DEBUG_INFO("delimTextRow::getValue() Searching for column" + boost::lexical_cast<string>(iColumn) + " within <" + m_strData + ">; length = " << m_strData.length() << ".");
-		
-		size_t beginPos = 0;
-		for (unsigned int i=0; i<iColumn; i++) {										//Loop past all of the previous columns to the one requested
-			beginPos = m_strData.find_first_of(searchFor, beginPos);
-			if (beginPos != string::npos) {
-				if (m_strData[beginPos] == m_chQualifier) {						//If I find a qualifier
-					beginPos = m_strData.find(m_chQualifier, beginPos+1);		//Then nothing else counts until I find the closing qualifier
-					if (beginPos != string::npos) {
-						beginPos = m_strData.find(m_chDelim, beginPos+1);		//Now find the next delimiter
+		if (p_strValue) {
+			char searchFor[3];
+			searchFor[0] = m_chDelim;
+			searchFor[1] = m_chQualifier;
+			searchFor[2] = '\0';
+			
+			//TODO	This code should be smarter with qualifiers.  For example 'test|"testing"tes|ting"|test' will fail because there is a lone '"' in the middle of a field.
+			//			I think that the qualifier search should be looking for delimiter/qualifier pairs.  For example '|"' and '"|'.  Lone qualifiers should not count... Maybe...
+			
+			//TODO	Also, this code should not include the qualifiers in the output.  The qualifiers should be considered formatting characters that define the fields, not
+			//			part of the field data.  They should be filtered out... Maybe...
+			
+			DEBUG_INFO("delimTextRow::getValue() Searching for column" + boost::lexical_cast<string>(iColumn) + " within <" + m_strData + ">; length = " << m_strData.length() << ".");
+			
+			size_t beginPos = 0;
+			for (unsigned int i=0; i<iColumn; i++) {										//Loop past all of the previous columns to the one requested
+				beginPos = m_strData.find_first_of(searchFor, beginPos);
+				if (beginPos != string::npos) {
+					if (m_strData[beginPos] == m_chQualifier) {						//If I find a qualifier
+						beginPos = m_strData.find(m_chQualifier, beginPos+1);		//Then nothing else counts until I find the closing qualifier
 						if (beginPos != string::npos) {
-							beginPos++;														//Increase by one to the beginning of the requested column 
+							beginPos = m_strData.find(m_chDelim, beginPos+1);		//Now find the next delimiter
+							if (beginPos != string::npos) {
+								beginPos++;														//Increase by one to the beginning of the requested column 
+							} else {
+								break;
+							}
 						} else {
 							break;
 						}
-					} else {
-						break;
+					} else {																		//If I found a delimiter
+						beginPos++;																//Then increase by one to the beginning of the requested column
 					}
-				} else {																		//If I found a delimiter
-					beginPos++;																//Then increase by one to the beginning of the requested column
+				} else {
+					break;
 				}
-			} else {
-				break;
 			}
-		}
-		
-		DEBUG_INFO("delimTextRow::getValue() Found column" + boost::lexical_cast<string>(iColumn) + "; searching for end of column...");
-
-		if (beginPos != string::npos) {
-			size_t endPos = m_strData.find_first_of(searchFor, beginPos);
-			DEBUG_INFO("delimTextRow::getValue() Starting @ " << beginPos << " found first indicator @ " << endPos); 
-			if (endPos != string::npos) {
-				if (m_strData[endPos] == m_chQualifier) {							//If I find a qualifier
-					endPos = m_strData.find(m_chQualifier, endPos+1);			//Then nothing else counts until I find the closing qualifier
-					if (endPos != string::npos) {
-						endPos = m_strData.find(m_chDelim, endPos+1);			//Now find the next delimiter to mark the end of this column 
+			
+			DEBUG_INFO("delimTextRow::getValue() Found column" + boost::lexical_cast<string>(iColumn) + "; searching for end of column...");
+	
+			if (beginPos != string::npos) {
+				size_t endPos = m_strData.find_first_of(searchFor, beginPos);
+				DEBUG_INFO("delimTextRow::getValue() Starting @ " << beginPos << " found first indicator @ " << endPos); 
+				if (endPos != string::npos) {
+					if (m_strData[endPos] == m_chQualifier) {							//If I find a qualifier
+						endPos = m_strData.find(m_chQualifier, endPos+1);			//Then nothing else counts until I find the closing qualifier
 						if (endPos != string::npos) {
-							*p_strValue = m_strData.substr(beginPos, endPos-beginPos);
+							endPos = m_strData.find(m_chDelim, endPos+1);			//Now find the next delimiter to mark the end of this column 
+							if (endPos != string::npos) {
+								*p_strValue = m_strData.substr(beginPos, endPos-beginPos);
+							} else {
+								*p_strValue = m_strData.substr(beginPos);
+							}
 						} else {
 							*p_strValue = m_strData.substr(beginPos);
 						}
 					} else {
-						*p_strValue = m_strData.substr(beginPos);
+						*p_strValue = m_strData.substr(beginPos, endPos-beginPos);
 					}
 				} else {
-					*p_strValue = m_strData.substr(beginPos, endPos-beginPos);
+					*p_strValue = m_strData.substr(beginPos);
 				}
+				DEBUG_INFO("delimTextRow::getValue() Retrieved string <" + *p_strValue + ">.");			
+				rv = true;
 			} else {
-				*p_strValue = m_strData.substr(beginPos);
+				DEBUG_INFO("delimTextRow::getValue() Not enough columns in this row to retrieve the requested column.");
 			}
-			DEBUG_INFO("delimTextRow::getValue() Retrieved string <" + *p_strValue + ">.");			
-			rv = true;
 		} else {
-			DEBUG_INFO("delimTextRow::getValue() Not enough columns in this row to retrieve the requested column.");
+			DEBUG_ERROR("delimTextRow::getValue() Invalid destination pointer.");
 		}
+		
 	} else {
-		DEBUG_ERROR("delimTextRow::getValue() Invalid destination pointer.");
+		DEBUG_WARNING("delimTextRow::getValue() Invalid column value.");
 	}
-	
+
 	return rv;
 }
 
-bool delimTextRow::getValueAsLong(unsigned int iColumn, long* p_lValue) {
+bool delimTextRow::getValueAsLong(int iColumn, long* p_lValue) {
 	DEBUG_INFO("delimTextRow::getValueAsLong(" << iColumn << ")");
+
 	bool rv = false;
 	
 	if (p_lValue) {
@@ -140,6 +148,7 @@ bool delimTextRow::getValueAsLong(unsigned int iColumn, long* p_lValue) {
 }
 
 bool delimTextRow::getColumnCount(unsigned int* pCount) {
+	DEBUG_INFO("delimTextRow::getColumnCount(unsigned int* pCount)"); 
 	bool rv = false;
 
 	if (pCount) {
@@ -153,6 +162,7 @@ bool delimTextRow::getColumnCount(unsigned int* pCount) {
 		DEBUG_ERROR("delimTextRow::getColumnCount() Invalid destination pointer.");
 	}
 
+	DEBUG_INFO("delimTextRow::getColumnCount(unsigned int* pCount) -> rv = " << rv << "; pCount = " << *pCount); 
 	return rv;
 }
 
@@ -195,17 +205,20 @@ bool delimTextRow::getQualifier(char* pQualifier) {
 	return rv;
 }
 
-bool delimTextRow::getColumnByValue(string strValue, unsigned int* p_iColumn) {
+bool delimTextRow::getColumnByValue(string strValue, int* p_iColumn) {
+	DEBUG_INFO("delimTextRow::getColumnByValue(string strValue = " << strValue << ", int* p_iColumn = " << *p_iColumn << ")"); 
+
 	bool rv = false;
 
-	for (unsigned int i=0; i<getFieldCount(); i++) {
-		if (strValue == getField(i)) {
+	for (int i=0; i<getColumnCount(); i++) {
+		if (strValue == getValue(i)) {
 			*p_iColumn = i;
 			rv = true;
 			break;
 		}
 	}
 
+	DEBUG_INFO("delimTextRow::getColumnByValue(string strValue = " << strValue << ", int* p_iColumn = " << *p_iColumn << ") -> rv = " << rv << "; p_iColumn = " << *p_iColumn); 
 	return rv;
 }
 

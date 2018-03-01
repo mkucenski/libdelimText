@@ -32,8 +32,8 @@ class delimTextFile : public textFile {
 		delimTextRow getHeader() { return m_clsHeader; };
 		bool setHeader(string strHeader);
 
-		bool getColumnByName(string strName, unsigned int* p_iColumn) { return m_clsHeader.getColumnByValue(strName, p_iColumn); };
-		unsigned int getColumnByName(string strName) { unsigned int rv = 0; getColumnByName(strName, &rv); return rv; };
+		bool getColumnByName(string strName, int* p_iColumn) { return m_clsHeader.getColumnByValue(strName, p_iColumn); };
+		int getColumnByName(string strName) { int rv = -1; getColumnByName(strName, &rv); return rv; };
 
 		bool getNextRow(delimTextRow* pRow);
 	

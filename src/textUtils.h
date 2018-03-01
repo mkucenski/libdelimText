@@ -18,8 +18,14 @@
 #include <string>
 using namespace std;
 
-string findSubString(const string& str, uint32_t uiStartPos, const string& strStartsWith, const string& strEndsWith, bool bInclusive = false);
-string findSubString(const string& str, uint32_t uiStartPos, const string& strStartsWith, uint32_t uiLength, bool bInclusive = false);
+string findSubString(const string& str, size_t posStart, const string& strStartsWith, const string& strEndsWith, bool bInclusive = false);
+string findSubString(const string& str, size_t posStart, const string& strStartsWith, size_t cLength, bool bInclusive = false);
+
+size_t findSubString(const string& str, size_t posStart, const string& strSub);
+size_t ifindSubString(const string& str, size_t posStart, const string& strSub);
+
+string eraseSubString(const string& str, const string& strSub);
+string ieraseSubString(const string& str, const string& strSub);
 
 string stripQualifiers(const string& str, char chQualifier);
 string addQualifiers(const string& str, char chQualifier);
