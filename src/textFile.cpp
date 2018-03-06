@@ -12,10 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// #define _DEBUG_
+#include "misc/debugMsgs.h"
+#include "misc/errMsgs.h"
+
 #include "textFile.h"
+#include "textUtils.h"
 
 #include <iostream>
-#include "misc/debugMsgs.h"
+using namespace std;
 
 textFile::textFile()	:	m_pFilestream(NULL),
 								m_pInputstream(NULL) {
@@ -39,14 +44,14 @@ bool textFile::open(string strFilename) {
 				m_pInputstream = m_pFilestream;
 				rv = true;
 			} else {
-				DEBUG_ERROR("textFile::open() Failure opening file stream for " << (strFilename.length() > 0 ? strFilename : "STDIN") << ".");
+				ERROR("textFile::open() Failure opening file stream for " << (strFilename.length() > 0 ? strFilename : "STDIN") << ".");
 			}
 		} else {
 			m_pInputstream = &cin;
 			rv = true;
 		}
 	} else {
-		DEBUG_ERROR("textFile::open() Failure closing previous file stream.");
+		ERROR("textFile::open() Failure closing previous file stream.");
 	}
 	
 	return rv;	
@@ -59,7 +64,7 @@ bool textFile::close() {
 		m_pFilestream->close();
 		if (m_pFilestream->fail()) {
 			rv = false;
-			DEBUG_ERROR("textFile::close() Failure closing file stream.");
+			ERROR("textFile::close() Failure closing file stream.");
 		}
 		delete m_pFilestream;
 		m_pFilestream = NULL;
@@ -75,38 +80,20 @@ textFile::~textFile() {
 
 bool textFile::getNextRow(string* pStr) {
 	bool rv = false;
-	
+
 	if (m_pInputstream) {
 		if (pStr) {
-			*pStr = "";
-			char buffer[256];
-			while (m_pInputstream->good()) {
-				char peekChar = m_pInputstream->peek();
-				if (peekChar == '\n') {								//TODO This should handle more than just \n, it should handle DOS, UNIX, Mac line endings.
-					m_pInputstream->read(buffer, 1);
-					break;
-				} else if (peekChar == -1) {
-					break;
-				} else {
-					m_pInputstream->get(buffer, 256, '\n');
-					if (!m_pInputstream->fail()) {
-						pStr->append(buffer);
-					} else {
-						DEBUG_ERROR("textFile::getNextRow() Failure reading data into buffer.");
-					}
-				}
-			}
-			
-			if (pStr->length() > 0) {
+			string strRow;
+			readline(*m_pInputstream, strRow);
+			if (strRow.length() > 0) {
+				*pStr = strRow;
 				rv = true;
-			} else {
-				DEBUG_WARNING("textFile::getNextRow() Zero length string.");
 			}
 		} else {
-			DEBUG_ERROR("textFile::getNextRow() Invalid destination pointer.");
+			ERROR("textFile::getNextRow() Invalid destination pointer.");
 		}
 	} else {
-		DEBUG_ERROR("textFile::getNextRow() Invalid file pointer.");
+		ERROR("textFile::getNextRow() Invalid file pointer.");
 	}
 
 	return rv;
@@ -128,16 +115,16 @@ bool textFile::getFirstRow(string* pStr) {
 				// Move back to the original file position
 				m_pInputstream->seekg(rpos, m_pInputstream->beg);
 				if (m_pInputstream->eof() || m_pInputstream->fail()) {
-					DEBUG_ERROR("textFile::getFirstRow() Unable to return to previous position of file.");
+					ERROR("textFile::getFirstRow() Unable to return to previous position of file.");
 				}
 			} else {
-				DEBUG_ERROR("textFile::getFirstRow() Unable to move to beginning of file.");
+				ERROR("textFile::getFirstRow() Unable to move to beginning of file.");
 			}
 		} else {
-			DEBUG_ERROR("textFile::getFirstRow() Unable to store current file position.");
+			ERROR("textFile::getFirstRow() Unable to store current file position.");
 		}
 	} else {
-		DEBUG_ERROR("textFile::getFirstRow() Invalid file pointer.");
+		ERROR("textFile::getFirstRow() Invalid file pointer.");
 	}
 
 	return rv;

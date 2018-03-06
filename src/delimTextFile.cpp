@@ -12,10 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// #define _DEBUG_
+#include "misc/debugMsgs.h"
+#include "misc/errMsgs.h"
+
 #include "delimTextFile.h"
 
 #include <iostream>
-#include "misc/debugMsgs.h"
 
 delimTextFile::delimTextFile() {
 }
@@ -32,7 +35,7 @@ bool delimTextFile::open(string strFilename, char delim, char qualifier) {
 	if (textFile::open(strFilename)) {
 		rv = true;
 	} else {
-		DEBUG_ERROR("delimTextFile::open() Failure opening file.");
+		ERROR("delimTextFile::open() Failure opening file.");
 	}
 
 	return rv;
@@ -44,7 +47,7 @@ bool delimTextFile::setHeader(string strHeader) {
 	if (strHeader.length() > 0) {
 		rv = m_clsHeader.loadRow(strHeader, m_chDelim, m_chQualifier);
 	} else {
-		DEBUG_ERROR("delimTextFile::loadFirstRow() Zero-length header row.");
+		ERROR("delimTextFile::loadFirstRow() Zero-length header row.");
 	}
 
 	return rv;
@@ -58,10 +61,10 @@ bool delimTextFile::getNextRow(delimTextRow* pRow) {
 		if (textFile::getNextRow(&strData)) {
 			rv = pRow->loadRow(strData, m_chDelim, m_chQualifier);
 		} else {
-			DEBUG_ERROR("delimTextFile::getNextRow() Failure getting line of data.");
+			ERROR("delimTextFile::getNextRow() Failure getting line of data.");
 		}
 	} else {
-		DEBUG_ERROR("delimTextFile::getNextRow() Invalid destination row pointer.");
+		ERROR("delimTextFile::getNextRow() Invalid destination row pointer.");
 	}
 
 	return rv;

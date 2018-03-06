@@ -13,10 +13,11 @@
 // limitations under the License.
 
 // #define _DEBUG_
+#include "misc/debugMsgs.h"
+#include "misc/errMsgs.h"
 
 #include <algorithm>
 #include "textUtils.h"
-#include "misc/debugMsgs.h"
 
 string findSubString(const string& str, size_t posStart, const string& strStartsWith, const string& strEndsWith, bool bInclusive) {
 	string rv;
@@ -41,16 +42,16 @@ string findSubString(const string& str, size_t posStart, const string& strStarts
 					
 					rv = string(str, startPos, endPos - startPos + 1);
 				} else {
-					DEBUG_ERROR("textUtils::findSubString() Required ending string (" << strEndsWith << ") not found.");
+					ERROR("textUtils::findSubString() Required ending string (" << strEndsWith << ") not found.");
 				}
 			} else {
 				rv = string(str, startPos);
 			}
 		} else {
-			DEBUG_WARNING("textUtils::findSubString() Starting string (" << strStartsWith << ") not found.");
+			WARNING("textUtils::findSubString() Starting string (" << strStartsWith << ") not found.");
 		} 
 	} else {
-		DEBUG_ERROR("textUtils::findSubString() Search string has zero length.");
+		ERROR("textUtils::findSubString() Search string has zero length.");
 	}
 	
 	return rv;
@@ -71,10 +72,10 @@ string findSubString(const string& str, size_t posStart, const string& strStarts
 			
 			rv = string(str, startPos, cLength);
 		} else {
-			DEBUG_WARNING("textUtils::findSubString() Starting string (" << strStartsWith << ") not found.");
+			WARNING("textUtils::findSubString() Starting string (" << strStartsWith << ") not found.");
 		} 
 	} else {
-		DEBUG_ERROR("textUtils::findSubString() Search string has zero length or requested length equals 0.");
+		ERROR("textUtils::findSubString() Search string has zero length or requested length equals 0.");
 	}
 	
 	return rv;
@@ -89,7 +90,7 @@ size_t ifindSubString(const string& str, size_t posStart, const string& strSub) 
 	string strSubUpper = strSub;
 	transform(strUpper.begin(), strUpper.end(), strUpper.begin(), ::toupper);
 	transform(strSubUpper.begin(), strSubUpper.end(), strSubUpper.begin(), ::toupper);
-	DEBUG_INFO("textUtils::ifindSubString(" << str << ", " << strSub << ") - " << strUpper << " " << strSubUpper);
+	DEBUG("textUtils::ifindSubString(" << str << ", " << strSub << ") - " << strUpper << " " << strSubUpper);
 	return findSubString(strUpper, posStart, strSubUpper);
 }
 
@@ -108,7 +109,7 @@ string ieraseSubString(const string& str, const string& strSub) {
 	string rv = str;
 
 	size_t posSub = ifindSubString(str, 0, strSub);
-	DEBUG_INFO("pos" << posSub);
+	DEBUG("pos" << posSub);
 	if (posSub != string::npos) {
 		rv.erase(posSub, strSub.length());
 	}
@@ -119,26 +120,29 @@ string ieraseSubString(const string& str, const string& strSub) {
 string stripQualifiers(const string& str, char chQualifier) {
 	string rv;
 	
-	if (str.length() > 0 && chQualifier != '\0') {
-		int startPos = 0;
-		int endPos = str.length()-1;
-
-		if (str.find(chQualifier, 0) == 0) {					//str starts with a qualifier
-			startPos++;
+	if (chQualifier != '\0') {
+		if (str.length() > 0) {
+			int startPos = 0;
+			int endPos = str.length()-1;
+	
+			if (str.find(chQualifier, 0) == 0) {					//str starts with a qualifier
+				startPos++;
+			}
+	
+			if (str.find(chQualifier, endPos) == endPos) {		//str ends with a qualifier
+				endPos--;
+			}
+	
+			rv = string(str, startPos, endPos-startPos+1);
+	
+			if (startPos != 0 || endPos !=str.length()) {		//Changes were made, debug output
+				DEBUG("Qualifiers Removed: Changing <" << str << "> to <" << rv << ">.");
+			}
+		} else {
+			DEBUG("textUtils::stripQualifiers() Search string has zero length");
 		}
-
-		if (str.find(chQualifier, endPos) == endPos) {		//str ends with a qualifier
-			endPos--;
-		}
-
-		rv = string(str, startPos, endPos-startPos+1);
-
-		if (startPos != 0 || endPos !=str.length()) {		//Changes were made, debug output
-			DEBUG_INFO("Qualifiers Removed: Changing <" << str << "> to <" << rv << ">.");
-		}
-
 	} else {
-		DEBUG_ERROR("textUtils::stripQualifiers() Search string has zero length or requested qualifier is NULL.");
+		ERROR("textUtils::stripQualifiers() Requested qualifier is NULL.");
 	}
 	
 	return rv;
@@ -146,5 +150,42 @@ string stripQualifiers(const string& str, char chQualifier) {
 
 string addQualifiers(const string& str, char chQualifier) {
 	return string(chQualifier + str + chQualifier);
+}
+
+istream& readline(istream& is, string& strLine) {
+	// Windows \r\n; Unix \n; MacOS \r
+
+	bool fContinue = true;
+	streambuf* p_buffer = is.rdbuf();
+	if (p_buffer) {
+		int vChar = 0;
+		while (!is.eof() && fContinue) {
+			vChar = p_buffer->sbumpc();
+			switch (vChar) {
+				case '\n':									//unix
+					fContinue = false;
+					break;
+				case '\r':									//mac
+					if (p_buffer->sgetc() == '\n') {	//win
+						p_buffer->sbumpc();
+					}
+					fContinue = false;
+					break;
+				case EOF:
+					is.setstate(ios::eofbit);
+					fContinue = false;
+					break;
+				case '\0':								//ignore stray nul characters
+					break;
+				default:
+					strLine += (char)vChar;
+			}
+		}
+	} else {
+		ERROR("readline() Failure opening read buffer");
+	}
+	
+	DEBUG("str:" <<strLine);
+	return is;
 }
 

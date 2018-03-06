@@ -13,12 +13,13 @@
 // limitations under the License.
 
 // #define _DEBUG_
+#include "misc/debugMsgs.h"
+#include "misc/errMsgs.h"
 
 #include "delimTextRow.h"
 
 #include "delimTextFile.h"
 #include "boost/lexical_cast.hpp"
-#include "misc/debugMsgs.h"
 
 delimTextRow::delimTextRow() {
 }
@@ -37,13 +38,13 @@ delimTextRow::~delimTextRow() {
 }
 		
 bool delimTextRow::getValue(int iColumn, string* p_strValue) {
-	DEBUG_INFO("delimTextRow::getValue(int iColumn = " << iColumn << ", string* p_strValue" << *p_strValue << ")"); 
+	DEBUG("delimTextRow::getValue(int iColumn = " << iColumn << ", string* p_strValue" << *p_strValue << ")"); 
 
 	bool rv = false;
 	
 	if (iColumn >= 0) {
-		DEBUG_INFO("delimTextRow::getValue() m_chDelim: '" << m_chDelim << "'");
-		DEBUG_INFO("delimTextRow::getValue() m_chQualifier: '" << m_chQualifier << "'");
+		DEBUG("delimTextRow::getValue() m_chDelim: '" << m_chDelim << "'");
+		DEBUG("delimTextRow::getValue() m_chQualifier: '" << m_chQualifier << "'");
 	
 		if (p_strValue) {
 			char searchFor[3];
@@ -57,7 +58,7 @@ bool delimTextRow::getValue(int iColumn, string* p_strValue) {
 			//TODO	Also, this code should not include the qualifiers in the output.  The qualifiers should be considered formatting characters that define the fields, not
 			//			part of the field data.  They should be filtered out... Maybe...
 			
-			DEBUG_INFO("delimTextRow::getValue() Searching for column" + boost::lexical_cast<string>(iColumn) + " within <" + m_strData + ">; length = " << m_strData.length() << ".");
+			DEBUG("delimTextRow::getValue() Searching for column" + boost::lexical_cast<string>(iColumn) + " within <" + m_strData + ">; length = " << m_strData.length() << ".");
 			
 			size_t beginPos = 0;
 			for (unsigned int i=0; i<iColumn; i++) {										//Loop past all of the previous columns to the one requested
@@ -83,11 +84,11 @@ bool delimTextRow::getValue(int iColumn, string* p_strValue) {
 				}
 			}
 			
-			DEBUG_INFO("delimTextRow::getValue() Found column" + boost::lexical_cast<string>(iColumn) + "; searching for end of column...");
+			DEBUG("delimTextRow::getValue() Found column" + boost::lexical_cast<string>(iColumn) + "; searching for end of column...");
 	
 			if (beginPos != string::npos) {
 				size_t endPos = m_strData.find_first_of(searchFor, beginPos);
-				DEBUG_INFO("delimTextRow::getValue() Starting @ " << beginPos << " found first indicator @ " << endPos); 
+				DEBUG("delimTextRow::getValue() Starting @ " << beginPos << " found first indicator @ " << endPos); 
 				if (endPos != string::npos) {
 					if (m_strData[endPos] == m_chQualifier) {							//If I find a qualifier
 						endPos = m_strData.find(m_chQualifier, endPos+1);			//Then nothing else counts until I find the closing qualifier
@@ -107,24 +108,23 @@ bool delimTextRow::getValue(int iColumn, string* p_strValue) {
 				} else {
 					*p_strValue = m_strData.substr(beginPos);
 				}
-				DEBUG_INFO("delimTextRow::getValue() Retrieved string <" + *p_strValue + ">.");			
+				DEBUG("delimTextRow::getValue() Retrieved string <" + *p_strValue + ">.");			
 				rv = true;
 			} else {
-				DEBUG_INFO("delimTextRow::getValue() Not enough columns in this row to retrieve the requested column.");
+				DEBUG("delimTextRow::getValue() Not enough columns in this row to retrieve the requested column.");
 			}
 		} else {
-			DEBUG_ERROR("delimTextRow::getValue() Invalid destination pointer.");
+			ERROR("delimTextRow::getValue() Invalid destination pointer.");
 		}
-		
 	} else {
-		DEBUG_WARNING("delimTextRow::getValue() Invalid column value.");
+		DEBUG("delimTextRow::getValue() Invalid column value (" << iColumn << ")");
 	}
 
 	return rv;
 }
 
 bool delimTextRow::getValueAsLong(int iColumn, long* p_lValue) {
-	DEBUG_INFO("delimTextRow::getValueAsLong(" << iColumn << ")");
+	DEBUG("delimTextRow::getValueAsLong(" << iColumn << ")");
 
 	bool rv = false;
 	
@@ -135,20 +135,20 @@ bool delimTextRow::getValueAsLong(int iColumn, long* p_lValue) {
 				*p_lValue = strtol(strValue.c_str(), NULL, 10);
 				rv = true;
 			} else {
-				DEBUG_WARNING("delimTextRow::getValueAsLong() Zero length string.");
+				WARNING("delimTextRow::getValueAsLong() Zero length string.");
 			}
 		} else {
-			DEBUG_ERROR("delimTextRow::getValueAsLong() Failure retrieving string value.");
+			ERROR("delimTextRow::getValueAsLong() Failure retrieving string value.");
 		}
 	} else {
-		DEBUG_ERROR("delimTextRow::getValueAsLong() Invalid destination pointer.");
+		ERROR("delimTextRow::getValueAsLong() Invalid destination pointer.");
 	}
 
 	return rv;
 }
 
 bool delimTextRow::getColumnCount(unsigned int* pCount) {
-	DEBUG_INFO("delimTextRow::getColumnCount(unsigned int* pCount)"); 
+	DEBUG("delimTextRow::getColumnCount(unsigned int* pCount)"); 
 	bool rv = false;
 
 	if (pCount) {
@@ -159,10 +159,10 @@ bool delimTextRow::getColumnCount(unsigned int* pCount) {
 		}
 		rv = true;
 	} else {
-		DEBUG_ERROR("delimTextRow::getColumnCount() Invalid destination pointer.");
+		ERROR("delimTextRow::getColumnCount() Invalid destination pointer.");
 	}
 
-	DEBUG_INFO("delimTextRow::getColumnCount(unsigned int* pCount) -> rv = " << rv << "; pCount = " << *pCount); 
+	DEBUG("delimTextRow::getColumnCount(unsigned int* pCount) -> rv = " << rv << "; pCount = " << *pCount); 
 	return rv;
 }
 
@@ -173,7 +173,7 @@ bool delimTextRow::getData(string* p_strData) {
 		*p_strData = m_strData; 
 		rv = true;
 	} else {
-		DEBUG_ERROR("delimTextRow::getData() Invalid destination pointer.");
+		ERROR("delimTextRow::getData() Invalid destination pointer.");
 	}
 
 	return rv;
@@ -186,7 +186,7 @@ bool delimTextRow::getDelim(char* pDelim) {
 		*pDelim = m_chDelim; 
 		rv = true; 
 	} else {
-		DEBUG_ERROR("delimTextRow::getDelim() Invalid destination pointer.");
+		ERROR("delimTextRow::getDelim() Invalid destination pointer.");
 	}
 	
 	return rv;
@@ -199,14 +199,14 @@ bool delimTextRow::getQualifier(char* pQualifier) {
 		*pQualifier = m_chQualifier; 
 		rv = true; 
 	} else {
-		DEBUG_ERROR("delimTextRow::getQualifier() Invalid destination pointer.");
+		ERROR("delimTextRow::getQualifier() Invalid destination pointer.");
 	}
 	
 	return rv;
 }
 
 bool delimTextRow::getColumnByValue(string strValue, int* p_iColumn) {
-	DEBUG_INFO("delimTextRow::getColumnByValue(string strValue = " << strValue << ", int* p_iColumn = " << *p_iColumn << ")"); 
+	DEBUG("delimTextRow::getColumnByValue(string strValue = " << strValue << ", int* p_iColumn = " << *p_iColumn << ")"); 
 
 	bool rv = false;
 
@@ -218,7 +218,7 @@ bool delimTextRow::getColumnByValue(string strValue, int* p_iColumn) {
 		}
 	}
 
-	DEBUG_INFO("delimTextRow::getColumnByValue(string strValue = " << strValue << ", int* p_iColumn = " << *p_iColumn << ") -> rv = " << rv << "; p_iColumn = " << *p_iColumn); 
+	DEBUG("delimTextRow::getColumnByValue(string strValue = " << strValue << ", int* p_iColumn = " << *p_iColumn << ") -> rv = " << rv << "; p_iColumn = " << *p_iColumn); 
 	return rv;
 }
 

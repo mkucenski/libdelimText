@@ -30,4 +30,6 @@ string ieraseSubString(const string& str, const string& strSub);
 string stripQualifiers(const string& str, char chQualifier);
 string addQualifiers(const string& str, char chQualifier);
 
+istream& readline(istream& is, string& strLine);	//Read lines of text while accounting for multi-architecture line-endings.
+
 #endif /*TEXTUTILS_H_*/
