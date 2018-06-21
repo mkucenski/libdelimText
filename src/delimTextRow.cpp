@@ -135,7 +135,7 @@ bool delimTextRow::getValueAsLong(int iColumn, long* p_lValue) {
 				*p_lValue = strtol(strValue.c_str(), NULL, 10);
 				rv = true;
 			} else {
-				WARNING("delimTextRow::getValueAsLong() Zero length string.");
+				DEBUG("delimTextRow::getValueAsLong() Zero length string.");
 			}
 		} else {
 			ERROR("delimTextRow::getValueAsLong() Failure retrieving string value.");
