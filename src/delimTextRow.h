@@ -27,6 +27,7 @@ class delimTextRow {
 		
 		bool getData(string* pstrData);
 		string getData() { return m_strData; };
+		unsigned int getDataLength() { return m_strData.length(); };
 		bool getDelim(char* pDelim);
 		char getDelim() { return m_chDelim; };
 		bool getQualifier(char* pQualifier);
